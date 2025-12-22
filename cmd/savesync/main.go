@@ -6,6 +6,7 @@ import (
 	"os/exec"
 
 	"github.com/rafalb8/SaveSync/internal/config"
+	"github.com/rafalb8/SaveSync/internal/game"
 )
 
 func main() {
@@ -13,15 +14,17 @@ func main() {
 		config.GameName = getGameName(config.GameArgs)
 	}
 
-	cfg, err := config.LoadGame()
+	cfg, err := game.Load(config.GameName)
 	if err != nil {
 		panic(err)
 	}
 
 	// Pre-Game Sync
-	fmt.Printf("Syncing latest save for %s from cloud...\n", config.GameName)
-	// performDownloadSync(gameConfig, cloudConfig)
-	_ = cfg
+	// fmt.Printf("Syncing latest save for %s from cloud...\n", config.GameName)
+	// err = cfg.Download()
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	// Run the game
 	fmt.Println("Starting game:", config.GameName)
@@ -37,7 +40,10 @@ func main() {
 
 	// Post-Game Sync
 	fmt.Printf("Game closed. Uploading new save for %s to cloud...\n", config.GameName)
-	// performUploadSync(gameConfig, cloudConfig)
+	err = cfg.Upload()
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println("SaveSync finished")
 }

@@ -1,36 +1,55 @@
 package config
 
 import (
+	"flag"
 	"fmt"
+	"os"
 	"path/filepath"
-
-	"github.com/BurntSushi/toml"
+	"slices"
+	"strings"
 )
 
-type Provider int8
-
-const (
-	Unsupported = iota - 1
-	Local
-	SSH
-	GoogleDrive
+// Flags
+var (
+	ConfigPath string
+	GameName   string
 )
 
-type Game struct {
-	SavePath        string     `toml:"save_path"`
-	Providers       []Provider `toml:"providers"`
-	IncludePatterns []string   `toml:"include_patterns"`
-	ExcludePatterns []string   `toml:"exclude_patterns"`
-}
+var (
+	GameArgs []string
+	Environ  strings.Replacer
+)
 
-func LoadGame() (*Game, error) {
-	path := filepath.Join(ConfigPath, GameName+".toml")
+func init() {
+	// Find game/savesync args split
+	split := slices.Index(os.Args, "--")
 
-	cfg := &Game{}
-	_, err := toml.DecodeFile(path, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("config.Load: failed to load file %s: %w", path, err)
+	if split == -1 {
+		fmt.Println("Usage: savesync -- <game_executable>")
+		os.Exit(1)
 	}
 
-	return cfg, nil
+	cfgPath, err := os.UserConfigDir()
+	if err != nil {
+		panic(err)
+	}
+
+	// Flags
+	flag.StringVar(&ConfigPath, "config-path", filepath.Join(cfgPath, "SaveSync"), "path to SaveSync config directory")
+	flag.StringVar(&GameName, "game", "", "override game name")
+	flag.CommandLine.Parse(os.Args[:split])
+
+	GameArgs = os.Args[split+1:]
+
+	Environ = *strings.NewReplacer(
+		"$HOME", Must(os.UserHomeDir()),
+		"$XDG_CONFIG_HOME", cfgPath,
+	)
+}
+
+func Must[T any](x T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return x
 }

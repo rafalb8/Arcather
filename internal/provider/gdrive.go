@@ -1,6 +1,6 @@
 package provider
 
-type GoogleDrive struct {
+type googleDrive struct {
 	Token    string
 	BasePath string `toml:"base_path"`
 }
