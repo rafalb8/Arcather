@@ -5,8 +5,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/rafalb8/SaveSync/internal/config"
-	"github.com/rafalb8/SaveSync/internal/game"
+	"github.com/rafalb8/Arcather/internal/config"
+	"github.com/rafalb8/Arcather/internal/game"
 )
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("SaveSync finished")
+	fmt.Println("Arcather finished")
 }
 
 func getGameName(execPath []string) string {

@@ -1,4 +1,4 @@
-module github.com/rafalb8/SaveSync
+module github.com/rafalb8/Arcather
 
 go 1.25.4
 

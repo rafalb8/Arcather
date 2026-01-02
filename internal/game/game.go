@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
-	"github.com/rafalb8/SaveSync/internal/config"
-	"github.com/rafalb8/SaveSync/internal/game/defaults"
-	"github.com/rafalb8/SaveSync/internal/provider"
+	"github.com/rafalb8/Arcather/internal/config"
+	"github.com/rafalb8/Arcather/internal/game/defaults"
+	"github.com/rafalb8/Arcather/internal/provider"
 )
 
 type Config struct {

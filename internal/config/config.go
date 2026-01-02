@@ -21,11 +21,11 @@ var (
 )
 
 func init() {
-	// Find game/savesync args split
+	// Find game/arcather args split
 	split := slices.Index(os.Args, "--")
 
 	if split == -1 {
-		fmt.Println("Usage: savesync -- <game_executable>")
+		fmt.Println("Usage: arcather -- <game_executable>")
 		os.Exit(1)
 	}
 
@@ -35,7 +35,7 @@ func init() {
 	}
 
 	// Flags
-	flag.StringVar(&ConfigPath, "config-path", filepath.Join(cfgPath, "SaveSync"), "path to SaveSync config directory")
+	flag.StringVar(&ConfigPath, "config-path", filepath.Join(cfgPath, "Arcather"), "path to Arcather config directory")
 	flag.StringVar(&GameName, "game", "", "override game name")
 	flag.CommandLine.Parse(os.Args[:split])
 
