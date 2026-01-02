@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/BurntSushi/toml"
+	"github.com/rafalb8/Arcather/defaults"
 	"github.com/rafalb8/Arcather/internal/config"
-	"github.com/rafalb8/Arcather/internal/game/defaults"
 	"github.com/rafalb8/Arcather/internal/provider"
 )
 
@@ -24,12 +24,13 @@ func Load(name string) (*Config, error) {
 	_, err := fs.Stat(fsys, name)
 	if os.IsNotExist(err) {
 		fsys = defaults.Configs
+		name = defaults.Select(name)
 	}
 
 	cfg := &Config{}
 	_, err = toml.DecodeFS(fsys, name, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("config.Load: failed to decode toml: %w", err)
+		return nil, fmt.Errorf("game.Load: failed to decode toml: %w", err)
 	}
 
 	cfg.SavePath = config.Environ.Replace(cfg.SavePath)
