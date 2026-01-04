@@ -3,11 +3,12 @@ package config
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
+
+	"github.com/rafalb8/ln"
 )
 
 // Flags
@@ -29,29 +30,19 @@ func Init() {
 		os.Exit(1)
 	}
 
-	cfgPath, err := os.UserConfigDir()
-	if err != nil {
-		log.Fatalln("FATAL:", err)
-	}
+	cfgPath := ln.Must(os.UserConfigDir())
 
 	// Flags
 	flag.StringVar(&ConfigPath, "config-path", filepath.Join(cfgPath, "Arcather"), "path to Arcather config directory")
 	flag.StringVar(&GameName, "game", "", "override game name")
-	err = flag.CommandLine.Parse(os.Args[1:split])
+	err := flag.CommandLine.Parse(os.Args[1:split])
 	if err != nil {
-		log.Fatalln("FATAL:", err)
+		ln.Fatal("Failed to parse flags", ln.Err(err))
 	}
 	GameArgs = os.Args[split+1:]
 
 	Environ = *strings.NewReplacer(
-		"$HOME", Must(os.UserHomeDir()),
+		"$HOME", ln.Must(os.UserHomeDir()),
 		"$XDG_CONFIG_HOME", cfgPath,
 	)
-}
-
-func Must[T any](x T, err error) T {
-	if err != nil {
-		log.Fatalln("FATAL:", err)
-	}
-	return x
 }

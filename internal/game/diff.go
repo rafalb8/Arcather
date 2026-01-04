@@ -2,9 +2,10 @@ package game
 
 import (
 	"io/fs"
-	"log"
 	"os"
 	"time"
+
+	"github.com/rafalb8/ln"
 )
 
 type Stat struct {
@@ -24,7 +25,7 @@ func Probe(path string) []Stat {
 
 		info, err := d.Info()
 		if err != nil {
-			log.Println("ERROR:", err)
+			ln.Error("Error getting file info", ln.Err(err))
 			return nil
 		}
 

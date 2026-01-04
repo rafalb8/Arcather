@@ -4,8 +4,9 @@ import (
 	"embed"
 	"errors"
 	"io/fs"
-	"log"
 	"strings"
+
+	"github.com/rafalb8/ln"
 )
 
 //go:embed *.toml
@@ -21,7 +22,7 @@ func Select(executable string) string {
 	if errors.Is(err, fs.ErrNotExist) {
 		exec, found := Alternatives[strings.TrimSuffix(exec, ".toml")]
 		if !found {
-			log.Fatalln("FATAL: No config for", executable, "found")
+			ln.Fatal("No config found", ln.String("exe", executable))
 		}
 		return exec + ".toml"
 	}

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/exec"
 
 	"github.com/rafalb8/Arcather/internal/config"
 	"github.com/rafalb8/Arcather/internal/game"
+	"github.com/rafalb8/ln"
 )
 
 func main() {
@@ -16,22 +16,17 @@ func main() {
 		config.GameName = getGameName(config.GameArgs)
 	}
 
-	log.Println("INFO: Loading config for", config.GameName)
+	ln.Info("Loading config: " + config.GameName)
 	cfg, err := game.Load(config.GameName)
 	if err != nil {
-		log.Fatalln("FATAL:", err)
+		ln.Fatal("Failed to load config", ln.Err(err))
 	}
 
 	// Pre-Game Sync
 	before := game.Probe(cfg.SavePath)
-	// log.Printf("Syncing latest save for %s from cloud...\n", config.GameName)
-	// err = cfg.Download()
-	// if err != nil {
-	// 	log.Fatalln("FATAL:", err)
-	// }
 
 	// Run the game
-	log.Println("INFO: Starting game:", config.GameName)
+	ln.Info("Starting game: " + config.GameName)
 	cmd := exec.Command(config.GameArgs[0], config.GameArgs[1:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -39,22 +34,22 @@ func main() {
 
 	err = cmd.Run()
 	if err != nil {
-		log.Println("ERROR: Game process failed:", err)
+		ln.Error("Game process failed:", ln.Err(err))
 	} else {
-		log.Println("INFO: Game process finished.")
+		ln.Info("Game process finished")
 	}
 
 	// Post-Game Sync
 	diff := game.Diff(before, game.Probe(cfg.SavePath))
 	if len(diff.Created) > 0 || len(diff.Deleted) > 0 || len(diff.Modified) > 0 {
-		log.Printf("INFO: Uploading new save for %s to cloud...\n", config.GameName)
+		ln.Info("Uploading saves to the cloud")
 		err = cfg.Upload()
 		if err != nil {
-			log.Fatalln("FATAL:", err)
+			ln.Fatal("Failed to upload", ln.Err(err))
 		}
 	}
 
-	log.Println("INFO: Arcather finished.")
+	ln.Info("Arcather finished")
 }
 
 func getGameName(execPath []string) string {
