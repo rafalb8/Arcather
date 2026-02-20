@@ -13,7 +13,7 @@ import (
 
 type Config struct {
 	SavePath        string          `toml:"save_path"`
-	Remote          []rclone.RemoteType `toml:"remotes"`
+	Remote          []rclone.Remote `toml:"remotes"`
 	IncludePatterns []string        `toml:"include_patterns"`
 	ExcludePatterns []string        `toml:"exclude_patterns"`
 }

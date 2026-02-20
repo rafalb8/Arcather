@@ -4,6 +4,8 @@ import (
 	"strings"
 )
 
+type Remote string
+
 type RemoteType int8
 
 const (

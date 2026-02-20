@@ -38,7 +38,7 @@ type Config struct {
 	Type      RemoteType
 }
 
-func ConfigGet(name string) (any, error) {
+func ConfigGet(name Remote) (any, error) {
 	out, status := librclone.RPC("config/get", fmt.Sprintf(`{"name": "%s"}`, name))
 	if status != http.StatusOK {
 		return nil, fmt.Errorf("rclone: %s", out)
@@ -52,14 +52,14 @@ func ConfigGet(name string) (any, error) {
 	return resp, nil
 }
 
-func ConfigCreate(name string, remote RemoteType) error {
+func ConfigCreate(name Remote, rtype RemoteType) error {
 	req := &struct {
-		Name       string            `json:"name"`
+		Name       Remote            `json:"name"`
 		Parameters map[string]string `json:"parameters"`
-		Type       RemoteType            `json:"type"`
+		Type       RemoteType        `json:"type"`
 	}{
 		Name: name,
-		Type: remote,
+		Type: rtype,
 	}
 
 	payload, err := json.Marshal(req)
