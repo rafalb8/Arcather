@@ -18,7 +18,7 @@ func main() {
 
 	switch {
 	case config.Setup != "":
-		setup(rclone.ToRemote(config.Setup))
+		setup(rclone.ToRemoteType(config.Setup))
 	case len(config.Launch) > 0:
 		launch(config.GameName, config.Launch)
 	default:
@@ -27,7 +27,7 @@ func main() {
 	}
 }
 
-func setup(remote rclone.Remote) {
+func setup(remote rclone.RemoteType) {
 	x, err := rclone.ConfigGet("arcather-test")
 	fmt.Printf("%+v %v", x, err)
 }

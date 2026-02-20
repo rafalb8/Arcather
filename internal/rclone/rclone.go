@@ -35,7 +35,7 @@ type Config struct {
 	Scope     string
 	TeamDrive string `json:"team_drive"`
 	Token     json.RawMessage
-	Type      Remote
+	Type      RemoteType
 }
 
 func ConfigGet(name string) (any, error) {
@@ -52,11 +52,11 @@ func ConfigGet(name string) (any, error) {
 	return resp, nil
 }
 
-func ConfigCreate(name string, remote Remote) error {
+func ConfigCreate(name string, remote RemoteType) error {
 	req := &struct {
 		Name       string            `json:"name"`
 		Parameters map[string]string `json:"parameters"`
-		Type       Remote            `json:"type"`
+		Type       RemoteType            `json:"type"`
 	}{
 		Name: name,
 		Type: remote,

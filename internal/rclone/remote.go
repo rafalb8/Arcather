@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-type Remote int8
+type RemoteType int8
 
 const (
 	Unsupported = iota - 1
@@ -13,7 +13,7 @@ const (
 	GoogleDrive
 )
 
-func ToRemote(t string) Remote {
+func ToRemoteType(t string) RemoteType {
 	switch strings.ToLower(t) {
 	case "local":
 		return Local
@@ -26,8 +26,8 @@ func ToRemote(t string) Remote {
 	}
 }
 
-func (r Remote) String() string {
-	switch r {
+func (rt RemoteType) String() string {
+	switch rt {
 	case Local:
 		return "local"
 	case SSH:
@@ -39,11 +39,11 @@ func (r Remote) String() string {
 	}
 }
 
-func (r Remote) MarshalJSON() ([]byte, error) {
-	return []byte(`"` + r.String() + `"`), nil
+func (rt RemoteType) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + rt.String() + `"`), nil
 }
 
-func (r *Remote) UnmarshalJSON(data []byte) error {
-	*r = ToRemote(strings.Trim(string(data), `"`))
+func (rt *RemoteType) UnmarshalJSON(data []byte) error {
+	*rt = ToRemoteType(strings.Trim(string(data), `"`))
 	return nil
 }
