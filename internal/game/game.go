@@ -4,11 +4,18 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/rafalb8/Arcather/defaults"
 	"github.com/rafalb8/Arcather/internal/config"
 	"github.com/rafalb8/Arcather/internal/rclone"
+	"github.com/rafalb8/ln"
+)
+
+var environ = strings.NewReplacer(
+	"$HOME", ln.Must(os.UserHomeDir()),
+	"$XDG_CONFIG_HOME", ln.Must(os.UserConfigDir()),
 )
 
 type Config struct {
@@ -33,7 +40,7 @@ func Load(name string) (*Config, error) {
 		return nil, fmt.Errorf("game.Load: failed to decode toml: %w", err)
 	}
 
-	cfg.SavePath = config.Environ.Replace(cfg.SavePath)
+	cfg.SavePath = environ.Replace(cfg.SavePath)
 	return cfg, nil
 }
 

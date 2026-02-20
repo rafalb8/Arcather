@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/rafalb8/Arcather/internal/config"
 	"github.com/rafalb8/Arcather/internal/game"
@@ -19,17 +20,37 @@ func main() {
 	switch {
 	case config.Setup != "":
 		setup(rclone.ToRemoteType(config.Setup))
+
+	case config.Remotes:
+		remotes()
+
 	case len(config.Launch) > 0:
 		launch(config.GameName, config.Launch)
+
 	default:
 		fmt.Println("Usage: arcather -- <game_executable>")
 		os.Exit(1)
 	}
 }
 
-func setup(remote rclone.RemoteType) {
-	x, err := rclone.ConfigGet("arcather-test")
-	fmt.Printf("%+v %v", x, err)
+func setup(rtype rclone.RemoteType) {
+	name := fmt.Sprintf("%s-%s-%s", rclone.RemotePrefix, rtype.String(), "test")
+	fmt.Println(rclone.ConfigCreate(name, rtype))
+}
+
+func remotes() {
+	remotes, err := rclone.ConfigRemotes()
+	if err != nil {
+		ln.Fatal("Failed to list remotes", ln.Err(err))
+	}
+
+	for _, remote := range remotes {
+		// Print all remotes with arcather prefix
+		if !strings.HasPrefix(remote, rclone.RemotePrefix) {
+			continue
+		}
+		fmt.Println(remote)
+	}
 }
 
 func launch(name string, args []string) {

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 
 	"github.com/rafalb8/ln"
 )
@@ -19,11 +18,10 @@ var (
 
 // Modes
 var (
-	Setup  string
-	Launch []string
+	Setup   string
+	Remotes bool
+	Launch  []string
 )
-
-var Environ strings.Replacer
 
 func Init() {
 	// Find game/arcather args split
@@ -40,7 +38,8 @@ func Init() {
 	flag.BoolVar(&Verbose, "v", false, "show game logs")
 
 	// Modes
-	flag.StringVar(&Setup, "setup", "", "setup provider")
+	flag.StringVar(&Setup, "setup", "", "setup remote")
+	flag.BoolVar(&Remotes, "remotes", false, "list remotes")
 
 	err := flag.CommandLine.Parse(os.Args[1:split])
 	if err != nil {
@@ -50,9 +49,4 @@ func Init() {
 	if split != len(os.Args) {
 		Launch = os.Args[split+1:]
 	}
-
-	Environ = *strings.NewReplacer(
-		"$HOME", ln.Must(os.UserHomeDir()),
-		"$XDG_CONFIG_HOME", cfgPath,
-	)
 }

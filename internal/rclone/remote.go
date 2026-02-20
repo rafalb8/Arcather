@@ -4,9 +4,12 @@ import (
 	"strings"
 )
 
-type Remote string
+const RemotePrefix = "arcather-"
 
-type RemoteType int8
+type (
+	Remote     = string
+	RemoteType int8
+)
 
 const (
 	Unsupported = iota - 1
