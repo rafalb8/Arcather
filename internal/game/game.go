@@ -8,12 +8,12 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/rafalb8/Arcather/defaults"
 	"github.com/rafalb8/Arcather/internal/config"
-	"github.com/rafalb8/Arcather/internal/provider"
+	"github.com/rafalb8/Arcather/internal/rclone"
 )
 
 type Config struct {
 	SavePath        string          `toml:"save_path"`
-	Providers       []provider.Type `toml:"providers"`
+	Remote          []rclone.Remote `toml:"remotes"`
 	IncludePatterns []string        `toml:"include_patterns"`
 	ExcludePatterns []string        `toml:"exclude_patterns"`
 }

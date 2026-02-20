@@ -7,7 +7,6 @@ import (
 
 	"github.com/rafalb8/Arcather/internal/config"
 	"github.com/rafalb8/Arcather/internal/game"
-	"github.com/rafalb8/Arcather/internal/provider"
 	"github.com/rafalb8/Arcather/internal/rclone"
 	"github.com/rafalb8/ln"
 )
@@ -19,7 +18,7 @@ func main() {
 
 	switch {
 	case config.Setup != "":
-		setup(provider.ToType(config.Setup))
+		setup(rclone.ToRemote(config.Setup))
 	case len(config.Launch) > 0:
 		launch(config.GameName, config.Launch)
 	default:
@@ -28,8 +27,9 @@ func main() {
 	}
 }
 
-func setup(p provider.Type) {
-	fmt.Println(rclone.ListRemotes())
+func setup(remote rclone.Remote) {
+	x, err := rclone.ConfigGet("arcather-test")
+	fmt.Printf("%+v %v", x, err)
 }
 
 func launch(name string, args []string) {
