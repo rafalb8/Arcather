@@ -28,9 +28,10 @@ func main() {
 	// Run the game
 	ln.Info("Starting game: " + config.GameName)
 	cmd := exec.Command(config.GameArgs[0], config.GameArgs[1:]...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	if config.Verbose {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 
 	err = cmd.Run()
 	if err != nil {

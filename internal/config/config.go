@@ -15,6 +15,7 @@ import (
 var (
 	ConfigPath string
 	GameName   string
+	Verbose    bool
 )
 
 var (
@@ -35,6 +36,7 @@ func Init() {
 	// Flags
 	flag.StringVar(&ConfigPath, "config-path", filepath.Join(cfgPath, "Arcather"), "path to Arcather config directory")
 	flag.StringVar(&GameName, "game", "", "override game name")
+	flag.BoolVar(&Verbose, "v", false, "show game logs")
 	err := flag.CommandLine.Parse(os.Args[1:split])
 	if err != nil {
 		ln.Fatal("Failed to parse flags", ln.Err(err))
