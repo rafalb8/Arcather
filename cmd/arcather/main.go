@@ -1,23 +1,44 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 
 	"github.com/rafalb8/Arcather/internal/config"
 	"github.com/rafalb8/Arcather/internal/game"
+	"github.com/rafalb8/Arcather/internal/provider"
+	"github.com/rafalb8/Arcather/internal/rclone"
 	"github.com/rafalb8/ln"
 )
 
 func main() {
+	rclone.Init()
+	defer rclone.Close()
 	config.Init()
 
-	if config.GameName == "" {
-		config.GameName = getGameName(config.GameArgs)
+	switch {
+	case config.Setup != "":
+		setup(provider.ToType(config.Setup))
+	case len(config.Launch) > 0:
+		launch(config.GameName, config.Launch)
+	default:
+		fmt.Println("Usage: arcather -- <game_executable>")
+		os.Exit(1)
+	}
+}
+
+func setup(p provider.Type) {
+	fmt.Println(rclone.ListRemotes())
+}
+
+func launch(name string, args []string) {
+	if name == "" {
+		name = args[0]
 	}
 
-	ln.Info("Loading config: " + config.GameName)
-	cfg, err := game.Load(config.GameName)
+	ln.Info("Loading config: " + name)
+	cfg, err := game.Load(name)
 	if err != nil {
 		ln.Fatal("Failed to load config", ln.Err(err))
 	}
@@ -26,8 +47,8 @@ func main() {
 	before := game.Probe(cfg.SavePath)
 
 	// Run the game
-	ln.Info("Starting game: " + config.GameName)
-	cmd := exec.Command(config.GameArgs[0], config.GameArgs[1:]...)
+	ln.Info("Starting game: " + name)
+	cmd := exec.Command(args[0], args[1:]...)
 	if config.Verbose {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -51,8 +72,4 @@ func main() {
 	}
 
 	ln.Info("Arcather finished")
-}
-
-func getGameName(execPath []string) string {
-	return execPath[0]
 }

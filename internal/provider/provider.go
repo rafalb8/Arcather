@@ -1,5 +1,7 @@
 package provider
 
+import "strings"
+
 type Type int8
 
 const (
@@ -8,3 +10,16 @@ const (
 	SSH
 	GoogleDrive
 )
+
+func ToType(t string) Type {
+	switch strings.ToLower(t) {
+	case "local":
+		return Local
+	case "ssh":
+		return SSH
+	case "gdrive", "google", "gd":
+		return GoogleDrive
+	default:
+		return Unsupported
+	}
+}
