@@ -53,13 +53,13 @@ func (cfg *Config) Sync() error {
 		var err error
 		cfg.Remote, err = rclone.ConfigRemotes()
 		if err != nil {
-			return fmt.Errorf("game: failed to load remotes: %w", err)
+			return fmt.Errorf("game.Sync: failed to load remotes: %w", err)
 		}
 	}
 
 	errs := []error{}
 	for _, remote := range cfg.Remote {
-		err := rclone.Sync(cfg.SavePath, cfg.RemotePath(remote), nil)
+		err := rclone.Sync(cfg.SavePath, cfg.RemotePath(remote), cfg.Filters.Rclone())
 		if err != nil {
 			errs = append(errs, err)
 		}
