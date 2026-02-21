@@ -4,8 +4,6 @@ import (
 	"strings"
 )
 
-const RemotePrefix = "arcather-"
-
 type (
 	Remote     = string
 	RemoteType int8

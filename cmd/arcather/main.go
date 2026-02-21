@@ -13,6 +13,8 @@ import (
 	"github.com/rafalb8/ln"
 )
 
+const RemotePrefix = "arcather-"
+
 func main() {
 	rclone.Init()
 	defer rclone.Close()
@@ -31,8 +33,10 @@ func main() {
 }
 
 func setup(name string, rtype rclone.RemoteType) {
-	remoteName := fmt.Sprintf("%s-%s", rclone.RemotePrefix, name)
-	fmt.Println(rclone.ConfigCreate(remoteName, rtype))
+	err := rclone.ConfigCreate(fmt.Sprint(RemotePrefix, name), rtype)
+	if err != nil {
+		ln.Fatal("Failed to setup remote", ln.Err(err))
+	}
 }
 
 func remotes() {
@@ -43,7 +47,7 @@ func remotes() {
 
 	for _, remote := range remotes {
 		// Print all remotes with arcather prefix
-		if !strings.HasPrefix(remote, rclone.RemotePrefix) {
+		if !strings.HasPrefix(remote, RemotePrefix) {
 			continue
 		}
 		fmt.Println(remote)
