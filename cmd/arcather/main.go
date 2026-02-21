@@ -13,6 +13,10 @@ import (
 )
 
 func main() {
+	ln.Default = ln.NewWithConfiguration(ln.Config{
+		Format: ln.Simple,
+	})
+
 	rclone.Init()
 	defer rclone.Close()
 	flag.Init()
