@@ -19,7 +19,7 @@ func main() {
 	flag.Init()
 
 	switch {
-	case flag.SetupName != "" && flag.SetupType != "":
+	case flag.Setup:
 		setup(flag.SetupName, rclone.ToRemoteType(flag.SetupType))
 
 	case flag.Remotes:

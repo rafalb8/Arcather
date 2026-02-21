@@ -18,6 +18,7 @@ var (
 )
 
 var (
+	Setup     bool
 	SetupName string
 	SetupType string
 )
@@ -34,21 +35,17 @@ func Init() {
 		split = len(os.Args)
 	}
 
-	var err error
 	args := os.Args[1:split]
 	if len(args) > 0 {
 		switch args[0] {
 		case "setup":
-			err = setupFlags(args[1:])
+			Setup = true
+			setupFlags(args[1:])
 		case "remotes":
 			Remotes = true
 		default:
-			err = mainFlags(args)
+			mainFlags(args)
 		}
-	}
-
-	if err != nil && err != pflag.ErrHelp {
-		ln.Fatal("Failed to parse flags", ln.Err(err))
 	}
 
 	if split != len(os.Args) {
@@ -56,7 +53,7 @@ func Init() {
 	}
 }
 
-func mainFlags(args []string) error {
+func mainFlags(args []string) {
 	fs := pflag.NewFlagSet("Arcather", pflag.ContinueOnError)
 
 	cfgPath := ln.Must(os.UserConfigDir())
@@ -77,19 +74,39 @@ func mainFlags(args []string) error {
 		fmt.Println("\nOptions:")
 		fs.PrintDefaults()
 	}
-	return fs.Parse(args)
+	err := fs.Parse(args)
+	if err != nil {
+		if err == pflag.ErrHelp {
+			os.Exit(0)
+		}
+		ln.Fatal("Failed to parse flags", ln.Err(err))
+	}
 }
 
-func setupFlags(args []string) error {
+func setupFlags(args []string) {
 	fs := pflag.NewFlagSet("arcather setup", pflag.ContinueOnError)
-
-	fs.StringVarP(&SetupName, "name", "n", "", "remote name")
-	fs.StringVarP(&SetupType, "type", "t", "", "remote type (sftp, webdav, etc.)")
-
 	fs.Usage = func() {
-		fmt.Println("Usage: arcather setup [options]")
-		fmt.Println("\nOptions:")
+		fmt.Println("Usage: arcather setup <name> <type>")
+		fmt.Println("\nArguments:")
+		fmt.Println("  <name>          The name of the remote")
+		fmt.Println("  <type>          The type (local, ssh, gdrive, etc.)")
 		fs.PrintDefaults()
 	}
-	return fs.Parse(args)
+
+	err := fs.Parse(args)
+	if err != nil {
+		if err == pflag.ErrHelp {
+			os.Exit(0)
+		}
+		ln.Fatal("Failed to parse flags", ln.Err(err))
+	}
+
+	args = fs.Args()
+	if len(args) < 2 {
+		fs.Usage()
+		os.Exit(1)
+	}
+
+	SetupName = args[0]
+	SetupType = args[1]
 }
