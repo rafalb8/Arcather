@@ -49,6 +49,14 @@ func (cfg *Config) RemotePath(remote rclone.Remote) string {
 }
 
 func (cfg *Config) Sync() error {
+	if len(cfg.Remote) == 0 {
+		var err error
+		cfg.Remote, err = rclone.ConfigRemotes()
+		if err != nil {
+			return fmt.Errorf("game: failed to load remotes: %w", err)
+		}
+	}
+
 	errs := []error{}
 	for _, remote := range cfg.Remote {
 		err := rclone.Sync(cfg.SavePath, cfg.RemotePath(remote), nil)

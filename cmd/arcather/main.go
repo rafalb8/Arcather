@@ -5,15 +5,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/rafalb8/Arcather/internal/flag"
 	"github.com/rafalb8/Arcather/internal/game"
 	"github.com/rafalb8/Arcather/internal/rclone"
 	"github.com/rafalb8/ln"
 )
-
-const RemotePrefix = "arcather-"
 
 func main() {
 	rclone.Init()
@@ -33,7 +30,7 @@ func main() {
 }
 
 func setup(name string, rtype rclone.RemoteType) {
-	err := rclone.ConfigCreate(fmt.Sprint(RemotePrefix, name), rtype)
+	err := rclone.ConfigCreate(name, rtype)
 	if err != nil {
 		ln.Fatal("Failed to setup remote", ln.Err(err))
 	}
@@ -46,10 +43,6 @@ func remotes() {
 	}
 
 	for _, remote := range remotes {
-		// Print all remotes with arcather prefix
-		if !strings.HasPrefix(remote, RemotePrefix) {
-			continue
-		}
 		fmt.Println(remote)
 	}
 }
