@@ -24,7 +24,7 @@ func Select(executable string) string {
 		if !found {
 			ln.Fatal("No config found", ln.String("exe", executable))
 		}
-		return exec + ".toml"
+		return exec
 	}
 	return exec
 }
