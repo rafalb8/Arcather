@@ -29,7 +29,7 @@ type Config struct {
 func Load(path, name string) (*Config, error) {
 	fsys := os.DirFS(path)
 	_, err := fs.Stat(fsys, name+".toml")
-	if os.IsNotExist(err) {
+	if err != nil {
 		fsys = defaults.Configs
 		name = defaults.Select(name)
 	}
