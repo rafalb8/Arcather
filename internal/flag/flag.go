@@ -1,4 +1,4 @@
-package config
+package flag
 
 import (
 	"flag"
@@ -20,8 +20,10 @@ var (
 var (
 	Setup   string
 	Remotes bool
-	Launch  []string
 )
+
+// Game path and arguments
+var Launch []string
 
 func Init() {
 	// Find game/arcather args split
@@ -39,7 +41,7 @@ func Init() {
 
 	// Modes
 	flag.StringVar(&Setup, "setup", "", "setup remote")
-	flag.BoolVar(&Remotes, "remotes", false, "list remotes")
+	flag.BoolVar(&Remotes, "remotes", false, "list remotes exclusive to Arcather")
 
 	err := flag.CommandLine.Parse(os.Args[1:split])
 	if err != nil {

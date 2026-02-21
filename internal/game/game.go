@@ -1,6 +1,7 @@
 package game
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/rafalb8/Arcather/defaults"
-	"github.com/rafalb8/Arcather/internal/config"
 	"github.com/rafalb8/Arcather/internal/rclone"
 	"github.com/rafalb8/ln"
 )
@@ -19,23 +19,23 @@ var environ = strings.NewReplacer(
 )
 
 type Config struct {
-	SavePath        string          `toml:"save_path"`
-	Remote          []rclone.Remote `toml:"remotes"`
-	IncludePatterns []string        `toml:"include_patterns"`
-	ExcludePatterns []string        `toml:"exclude_patterns"`
+	Name string `toml:"-"`
+
+	SavePath string          `toml:"save_path"`
+	Filters  Filters         `toml:"filters"`
+	Remote   []rclone.Remote `toml:"remotes"`
 }
 
-func Load(name string) (*Config, error) {
-	name += ".toml"
-	fsys := os.DirFS(config.ConfigPath)
-	_, err := fs.Stat(fsys, name)
+func Load(path, name string) (*Config, error) {
+	fsys := os.DirFS(path)
+	_, err := fs.Stat(fsys, name+".toml")
 	if os.IsNotExist(err) {
 		fsys = defaults.Configs
 		name = defaults.Select(name)
 	}
 
-	cfg := &Config{}
-	_, err = toml.DecodeFS(fsys, name, cfg)
+	cfg := &Config{Name: name}
+	_, err = toml.DecodeFS(fsys, name+".toml", cfg)
 	if err != nil {
 		return nil, fmt.Errorf("game.Load: failed to decode toml: %w", err)
 	}
@@ -44,10 +44,33 @@ func Load(name string) (*Config, error) {
 	return cfg, nil
 }
 
-func (cfg *Config) Upload() error {
-	panic("unimplemented")
+func (cfg *Config) RemotePath(remote rclone.Remote) string {
+	return fmt.Sprintf("%s:Arcather/%s", remote, cfg.Name)
 }
 
-func (cfg *Config) Download() error {
-	panic("unimplemented")
+func (cfg *Config) Sync() error {
+	errs := []error{}
+	for _, remote := range cfg.Remote {
+		err := rclone.Sync(cfg.SavePath, cfg.RemotePath(remote), nil)
+		if err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
+}
+
+type Filters struct {
+	Include []string `toml:"include"`
+	Exclude []string `toml:"exclude"`
+}
+
+func (f Filters) Rclone() *rclone.Filter {
+	if len(f.Include)+len(f.Exclude) == 0 {
+		return nil
+	}
+
+	return &rclone.Filter{
+		IncludeRule: f.Include,
+		ExcludeRule: f.Exclude,
+	}
 }

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
-	"github.com/rafalb8/Arcather/internal/config"
+	"github.com/rafalb8/Arcather/internal/flag"
 	"github.com/rafalb8/Arcather/internal/game"
 	"github.com/rafalb8/Arcather/internal/rclone"
 	"github.com/rafalb8/ln"
@@ -15,19 +16,23 @@ import (
 func main() {
 	rclone.Init()
 	defer rclone.Close()
-	config.Init()
+	flag.Init()
 
 	switch {
-	case config.Setup != "":
-		setup(rclone.ToRemoteType(config.Setup))
+	case flag.Setup != "":
+		setup(rclone.ToRemoteType(flag.Setup))
 
-	case config.Remotes:
+	case flag.Remotes:
 		remotes()
 
-	case len(config.Launch) > 0:
-		launch(config.GameName, config.Launch)
+	case len(flag.Launch) > 0:
+		launch(flag.GameName, flag.Launch)
 
 	default:
+		err := rclone.Sync("./cmd/arcather", "arcather-test:Arcather", &rclone.Filter{ExcludeRule: []string{"main.go"}})
+		if err != nil {
+			panic(err)
+		}
 		fmt.Println("Usage: arcather -- <game_executable>")
 		os.Exit(1)
 	}
@@ -55,22 +60,20 @@ func remotes() {
 
 func launch(name string, args []string) {
 	if name == "" {
-		name = args[0]
+		name = filepath.Base(args[0])
 	}
 
 	ln.Info("Loading config: " + name)
-	cfg, err := game.Load(name)
+	cfg, err := game.Load(flag.ConfigPath, name)
 	if err != nil {
 		ln.Fatal("Failed to load config", ln.Err(err))
 	}
 
-	// Pre-Game Sync
-	before := game.Probe(cfg.SavePath)
+	// TODO: Pre-Game Sync
 
-	// Run the game
 	ln.Info("Starting game: " + name)
 	cmd := exec.Command(args[0], args[1:]...)
-	if config.Verbose {
+	if flag.Verbose {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 	}
@@ -82,14 +85,10 @@ func launch(name string, args []string) {
 		ln.Info("Game process finished")
 	}
 
-	// Post-Game Sync
-	diff := game.Diff(before, game.Probe(cfg.SavePath))
-	if len(diff.Created) > 0 || len(diff.Deleted) > 0 || len(diff.Modified) > 0 {
-		ln.Info("Uploading saves to the cloud")
-		err = cfg.Upload()
-		if err != nil {
-			ln.Fatal("Failed to upload", ln.Err(err))
-		}
+	ln.Info("Uploading saves to the cloud")
+	err = cfg.Sync()
+	if err != nil {
+		ln.Fatal("Failed to upload:", ln.Err(err))
 	}
 
 	ln.Info("Arcather finished")

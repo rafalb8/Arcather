@@ -12,7 +12,7 @@ type (
 )
 
 const (
-	Unsupported = iota - 1
+	Unsupported RemoteType = iota - 1
 	Local
 	SSH
 	GoogleDrive
@@ -24,7 +24,7 @@ func ToRemoteType(t string) RemoteType {
 		return Local
 	case "ssh":
 		return SSH
-	case "gdrive", "google", "gd", "drive":
+	case "drive", "gdrive", "google", "gd":
 		return GoogleDrive
 	default:
 		return Unsupported

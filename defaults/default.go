@@ -18,9 +18,9 @@ var Alternatives = map[string]string{
 
 func Select(executable string) string {
 	exec := strings.ToLower(executable)
-	_, err := fs.Stat(Configs, exec)
+	_, err := fs.Stat(Configs, exec+".toml")
 	if errors.Is(err, fs.ErrNotExist) {
-		exec, found := Alternatives[strings.TrimSuffix(exec, ".toml")]
+		exec, found := Alternatives[exec]
 		if !found {
 			ln.Fatal("No config found", ln.String("exe", executable))
 		}
