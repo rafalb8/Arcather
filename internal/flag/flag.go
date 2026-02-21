@@ -1,54 +1,95 @@
 package flag
 
 import (
-	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 
 	"github.com/rafalb8/ln"
+	"github.com/spf13/pflag"
 )
 
-// Flags
 var (
 	ConfigPath string
 	GameName   string
 	Verbose    bool
+	Launch     []string
 )
 
-// Modes
 var (
-	Setup   string
-	Remotes bool
+	SetupName string
+	SetupType string
 )
 
-// Game path and arguments
-var Launch []string
+var Remotes bool
 
 func Init() {
-	// Find game/arcather args split
+	if len(os.Args) == 1 {
+		os.Args = append(os.Args, "-h")
+	}
+
 	split := slices.Index(os.Args, "--")
 	if split == -1 {
 		split = len(os.Args)
 	}
 
-	cfgPath := ln.Must(os.UserConfigDir())
+	var err error
+	args := os.Args[1:split]
+	if len(args) > 0 {
+		switch args[0] {
+		case "setup":
+			err = setupFlags(args[1:])
+		case "remotes":
+			Remotes = true
+		default:
+			err = mainFlags(args)
+		}
+	}
 
-	// Flags
-	flag.StringVar(&ConfigPath, "config-path", filepath.Join(cfgPath, "Arcather"), "path to Arcather config directory")
-	flag.StringVar(&GameName, "game", "", "override game name")
-	flag.BoolVar(&Verbose, "v", false, "show game logs")
-
-	// Modes
-	flag.StringVar(&Setup, "setup", "", "setup remote")
-	flag.BoolVar(&Remotes, "remotes", false, "list remotes exclusive to Arcather")
-
-	err := flag.CommandLine.Parse(os.Args[1:split])
-	if err != nil {
+	if err != nil && err != pflag.ErrHelp {
 		ln.Fatal("Failed to parse flags", ln.Err(err))
 	}
 
 	if split != len(os.Args) {
 		Launch = os.Args[split+1:]
 	}
+}
+
+func mainFlags(args []string) error {
+	fs := pflag.NewFlagSet("Arcather", pflag.ContinueOnError)
+
+	cfgPath := ln.Must(os.UserConfigDir())
+
+	fs.StringVarP(&ConfigPath, "config-path", "c", filepath.Join(cfgPath, "Arcather"), "path to Arcather config directory")
+	fs.StringVarP(&GameName, "game", "n", "", "override game name")
+	fs.BoolVarP(&Verbose, "verbose", "v", false, "show game logs")
+
+	fs.Usage = func() {
+		fmt.Println("Usage:")
+		fmt.Println("  arcather <command> [options]")
+		fmt.Println("  arcather [options] -- <game_executable> [args...]")
+
+		fmt.Println("\nCommands:")
+		fmt.Println("  setup           Setup a new remote")
+		fmt.Println("  remotes         List Arcather remotes")
+
+		fmt.Println("\nOptions:")
+		fs.PrintDefaults()
+	}
+	return fs.Parse(args)
+}
+
+func setupFlags(args []string) error {
+	fs := pflag.NewFlagSet("arcather setup", pflag.ContinueOnError)
+
+	fs.StringVarP(&SetupName, "name", "n", "", "remote name")
+	fs.StringVarP(&SetupType, "type", "t", "", "remote type (sftp, webdav, etc.)")
+
+	fs.Usage = func() {
+		fmt.Println("Usage: arcather setup [options]")
+		fmt.Println("\nOptions:")
+		fs.PrintDefaults()
+	}
+	return fs.Parse(args)
 }

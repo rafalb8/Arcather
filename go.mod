@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/rafalb8/ln v0.0.7
 	github.com/rclone/rclone v1.73.1
+	github.com/spf13/pflag v1.0.10
 )
 
 require (
@@ -55,7 +56,6 @@ require (
 	github.com/shirou/gopsutil/v4 v4.25.10 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/smarty/assertions v1.16.0 // indirect
-	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/tklauser/go-sysconf v0.3.15 // indirect
 	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/unknwon/goconfig v1.0.0 // indirect

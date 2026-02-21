@@ -19,28 +19,20 @@ func main() {
 	flag.Init()
 
 	switch {
-	case flag.Setup != "":
-		setup(rclone.ToRemoteType(flag.Setup))
+	case flag.SetupName != "" && flag.SetupType != "":
+		setup(flag.SetupName, rclone.ToRemoteType(flag.SetupType))
 
 	case flag.Remotes:
 		remotes()
 
 	case len(flag.Launch) > 0:
 		launch(flag.GameName, flag.Launch)
-
-	default:
-		err := rclone.Sync("./cmd/arcather", "arcather-test:Arcather", &rclone.Filter{ExcludeRule: []string{"main.go"}})
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("Usage: arcather -- <game_executable>")
-		os.Exit(1)
 	}
 }
 
-func setup(rtype rclone.RemoteType) {
-	name := fmt.Sprintf("%s-%s-%s", rclone.RemotePrefix, rtype.String(), "test")
-	fmt.Println(rclone.ConfigCreate(name, rtype))
+func setup(name string, rtype rclone.RemoteType) {
+	remoteName := fmt.Sprintf("%s-%s", rclone.RemotePrefix, name)
+	fmt.Println(rclone.ConfigCreate(remoteName, rtype))
 }
 
 func remotes() {
