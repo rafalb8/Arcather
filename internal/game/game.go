@@ -15,7 +15,7 @@ import (
 
 var environ = strings.NewReplacer(
 	"$HOME", ln.Must(os.UserHomeDir()),
-	"$XDG_CONFIG_HOME", ln.Must(os.UserConfigDir()),
+	"$CONFIG", ln.Must(os.UserConfigDir()),
 )
 
 type Config struct {
