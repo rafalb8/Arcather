@@ -3,8 +3,8 @@ module github.com/rafalb8/Arcather
 go 1.26
 
 require (
-	github.com/BurntSushi/toml v1.5.0
-	github.com/rafalb8/ln v0.0.7
+	github.com/BurntSushi/toml v1.6.0
+	github.com/rafalb8/ln v0.0.8
 	github.com/rclone/rclone v1.73.1
 	github.com/spf13/pflag v1.0.10
 )
