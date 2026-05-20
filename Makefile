@@ -8,14 +8,14 @@ linux:
 	CGO_ENABLED=0 \
 	GOARCH=amd64 \
 	GOOS=linux \
-	go build -ldflags=$(LDFLAGS) -o bin/arcather ./cmd/arcather
+	go build -ldflags=$(LDFLAGS) -o bin/arcather .
 	strip bin/arcather
 
 windows:
 	CGO_ENABLED=0 \
 	GOARCH=amd64 \
 	GOOS=windows \
-	go build -ldflags=$(LDFLAGS) -o bin/arcather.exe ./cmd/arcather
+	go build -ldflags=$(LDFLAGS) -o bin/arcather.exe .
 	strip bin/arcather.exe
 
 clean:
