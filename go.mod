@@ -1,10 +1,10 @@
 module github.com/rafalb8/Arcather
 
-go 1.26
+go 1.26.2
 
 require (
 	github.com/BurntSushi/toml v1.6.0
-	github.com/rafalb8/ln v0.0.8
+	github.com/rafalb8/ln v0.1.0
 	github.com/rclone/rclone v1.73.1
 	github.com/spf13/pflag v1.0.10
 )

@@ -323,8 +323,8 @@ github.com/prometheus/procfs v0.19.2 h1:zUMhqEW66Ex7OXIiDkll3tl9a1ZdilUOd/F6ZXw4
 github.com/prometheus/procfs v0.19.2/go.mod h1:M0aotyiemPhBCM0z5w87kL22CxfcH05ZpYlu+b4J7mw=
 github.com/putdotio/go-putio/putio v0.0.0-20200123120452-16d982cac2b8 h1:Y258uzXU/potCYnQd1r6wlAnoMB68BiCkCcCnKx1SH8=
 github.com/putdotio/go-putio/putio v0.0.0-20200123120452-16d982cac2b8/go.mod h1:bSJjRokAHHOhA+XFxplld8w2R/dXLH7Z3BZ532vhFwU=
-github.com/rafalb8/ln v0.0.8 h1:zEcZbOt5wcthAHD3eQ8nwgpJWON5WJh/KYuF6hTLbj4=
-github.com/rafalb8/ln v0.0.8/go.mod h1:COAA2FvC3Io7fKBZ55pTimUzbfYKKdWIYLpz7iig4iA=
+github.com/rafalb8/ln v0.1.0 h1:R7Ru4zqmspPpaggmU/MliQQNl43CMdkAMA8iqrXZzpc=
+github.com/rafalb8/ln v0.1.0/go.mod h1:COAA2FvC3Io7fKBZ55pTimUzbfYKKdWIYLpz7iig4iA=
 github.com/rclone/Proton-API-Bridge v1.0.1-0.20260127174007-77f974840d11 h1:4MI2alxM/Ye2gIRBlYf28JGWTipZ4Zz7yAziPKrttjs=
 github.com/rclone/Proton-API-Bridge v1.0.1-0.20260127174007-77f974840d11/go.mod h1:3HLX7dwZgvB7nt+Yl/xdzVPcargQ1yBmJEUg3n+jMKM=
 github.com/rclone/go-proton-api v1.0.1-0.20260127173028-eb465cac3b18 h1:Lc+d3ISfQaMJKWZOE7z4ZSY4RVmdzbn1B0IM8xN18qM=
