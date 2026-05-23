@@ -15,11 +15,10 @@ import (
 func main() {
 	rclone.Init()
 	defer rclone.Close()
-	flag.Init()
 
 	switch {
 	case flag.Setup:
-		setup(flag.SetupName, rclone.ToRemoteType(flag.SetupType))
+		setup(flag.SetupName, rclone.ToType(flag.SetupType))
 
 	case flag.Remotes:
 		remotes()
@@ -29,21 +28,21 @@ func main() {
 	}
 }
 
-func setup(name string, rtype rclone.RemoteType) {
-	err := rclone.ConfigCreate(name, rtype)
+func setup(name string, rtype rclone.Type) {
+	err := rclone.AddRemote(name, rtype)
 	if err != nil {
 		ln.Fatal("Failed to setup remote", ln.Err(err))
 	}
 }
 
 func remotes() {
-	remotes, err := rclone.ConfigRemotes()
+	remotes, err := rclone.ListRemotes()
 	if err != nil {
 		ln.Fatal("Failed to list remotes", ln.Err(err))
 	}
 
 	for _, remote := range remotes {
-		fmt.Println(remote)
+		fmt.Printf("[%s] %s\n", remote.Type.String(), remote.Name)
 	}
 }
 

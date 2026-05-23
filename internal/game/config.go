@@ -19,11 +19,11 @@ var environ = strings.NewReplacer(
 )
 
 type Config struct {
-	Name string `toml:"-"`
+	Name     string  `toml:"-"` // Name of the game
+	SavePath string  `toml:"save_path"`
+	Filters  Filters `toml:"filters"`
 
-	SavePath string          `toml:"save_path"`
-	Filters  Filters         `toml:"filters"`
-	Remote   []rclone.Remote `toml:"remotes"`
+	Remotes []rclone.Remote `toml:"remotes"`
 }
 
 func Load(path, name string) (*Config, error) {
@@ -44,41 +44,26 @@ func Load(path, name string) (*Config, error) {
 	return cfg, nil
 }
 
-func (cfg *Config) RemotePath(remote rclone.Remote) string {
-	return fmt.Sprintf("%s:Arcather/%s", remote, cfg.Name)
-}
-
 func (cfg *Config) Sync() error {
-	if len(cfg.Remote) == 0 {
+	if len(cfg.Remotes) == 0 {
 		var err error
-		cfg.Remote, err = rclone.ConfigRemotes()
+		cfg.Remotes, err = rclone.ListRemotes()
 		if err != nil {
 			return fmt.Errorf("game.Sync: failed to load remotes: %w", err)
 		}
 	}
 
+	local := rclone.Remote{
+		Type: rclone.Local,
+		Path: cfg.SavePath,
+	}
+
 	errs := []error{}
-	for _, remote := range cfg.Remote {
-		err := rclone.Sync(cfg.SavePath, cfg.RemotePath(remote), cfg.Filters.Rclone())
+	for _, remote := range cfg.Remotes {
+		err := rclone.Sync(local, remote.JoinPath(cfg.Name), cfg.Filters.Rclone())
 		if err != nil {
 			errs = append(errs, err)
 		}
 	}
 	return errors.Join(errs...)
-}
-
-type Filters struct {
-	Include []string `toml:"include"`
-	Exclude []string `toml:"exclude"`
-}
-
-func (f Filters) Rclone() *rclone.Filter {
-	if len(f.Include)+len(f.Exclude) == 0 {
-		return nil
-	}
-
-	return &rclone.Filter{
-		IncludeRule: f.Include,
-		ExcludeRule: f.Exclude,
-	}
 }

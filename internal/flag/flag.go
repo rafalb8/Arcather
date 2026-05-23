@@ -25,7 +25,7 @@ var (
 
 var Remotes bool
 
-func Init() {
+func init() {
 	if len(os.Args) == 1 {
 		os.Args = append(os.Args, "-h")
 	}

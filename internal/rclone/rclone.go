@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	_ "github.com/rclone/rclone/backend/drive" // Google Drive
-	_ "github.com/rclone/rclone/backend/local" // Local backend
-	_ "github.com/rclone/rclone/fs/sync"       // Sync
+	_ "github.com/rclone/rclone/backend/compress" // Transparent compression wrapper
+	_ "github.com/rclone/rclone/backend/drive"    // Google Drive
+	_ "github.com/rclone/rclone/backend/local"    // Local backend
+	_ "github.com/rclone/rclone/fs/sync"          // Sync
 	"github.com/rclone/rclone/librclone/librclone"
 )
 
@@ -21,57 +22,15 @@ var (
 	Close = librclone.Finalize
 )
 
-func ConfigRemotes() ([]Remote, error) {
-	out, status := librclone.RPC("config/listremotes", "")
-	if status != http.StatusOK {
-		return nil, fmt.Errorf("rclone: %s", out)
-	}
-
-	resp := &struct{ Remotes []Remote }{}
-	err := json.Unmarshal([]byte(out), resp)
-	if err != nil {
-		return nil, fmt.Errorf("rclone: %w", err)
-	}
-
-	remotes := make([]Remote, 0, len(resp.Remotes))
-	for _, remote := range resp.Remotes {
-		if strings.HasPrefix(remote, RemotePrefix) {
-			remotes = append(remotes, remote)
-		}
-	}
-
-	return remotes, nil
-}
-
-type Config struct {
-	Type      RemoteType
-	Scope     string
-	TeamDrive string `json:"team_drive"`
-	Token     json.RawMessage
-}
-
-func ConfigGet(name Remote) (*Config, error) {
-	out, status := librclone.RPC("config/get", fmt.Sprintf(`{"name": "%s"}`, name))
-	if status != http.StatusOK {
-		return nil, fmt.Errorf("rclone: %s", out)
-	}
-
-	resp := &Config{}
-	err := json.Unmarshal([]byte(out), resp)
-	if err != nil {
-		return nil, fmt.Errorf("rclone: %w", err)
-	}
-	return resp, nil
-}
-
-func ConfigCreate(name Remote, rtype RemoteType) error {
+func AddRemote(name string, rtype Type) error {
 	req := &struct {
-		Name       Remote            `json:"name"`
-		Type       RemoteType        `json:"type"`
+		Name       string            `json:"name"`
+		Type       Type        `json:"type"`
 		Parameters map[string]string `json:"parameters"`
 	}{
-		Name: fmt.Sprint(RemotePrefix, name),
-		Type: rtype,
+		Name:       fmt.Sprint(RemotePrefix, name),
+		Type:       rtype,
+		Parameters: make(map[string]string),
 	}
 
 	payload, err := json.Marshal(req)
@@ -86,21 +45,47 @@ func ConfigCreate(name Remote, rtype RemoteType) error {
 	return nil
 }
 
+// rclone rc --loopback config/dump
+func ListRemotes() ([]Remote, error) {
+	out, status := librclone.RPC("config/dump", "")
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("rclone: %s", out)
+	}
+
+	type rcfg struct{ Type Type }
+	resp := map[string]rcfg{}
+	err := json.Unmarshal([]byte(out), &resp)
+	if err != nil {
+		return nil, fmt.Errorf("rclone: %w", err)
+	}
+
+	remotes := make([]Remote, 0, len(resp))
+	for name, cfg := range resp {
+		if strings.HasPrefix(name, RemotePrefix) {
+			r := Remote{Type: cfg.Type, Name: name}
+			r.FillDefault()
+			remotes = append(remotes, r)
+		}
+	}
+
+	return remotes, nil
+}
+
+type syncReq struct {
+	Source             string  `json:"srcFs"`
+	Destination        string  `json:"dstFs"`
+	CreateEmptySrcDirs bool    `json:"createEmptySrcDirs"`
+	Filter             *Filter `json:"_filter,omitempty"`
+}
+
 // Sync the source to the destination, changing the destination only
 // https://rclone.org/commands/rclone_sync/
 func Sync(src, dst Remote, filter *Filter) error {
-	req := &struct {
-		Source             Remote `json:"srcFs"`
-		Destination        Remote `json:"dstFs"`
-		CreateEmptySrcDirs bool   `json:"createEmptySrcDirs"`
-
-		Filter *Filter `json:"_filter,omitempty"`
-	}{
-		Source:             src,
-		Destination:        dst,
+	req := &syncReq{
+		Source:             src.Rclone(),
+		Destination:        dst.Rclone(),
 		CreateEmptySrcDirs: true,
-
-		Filter: filter,
+		Filter:             filter,
 	}
 
 	payload, err := json.Marshal(req)
