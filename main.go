@@ -74,7 +74,7 @@ func launch(name string, args []string) {
 		ln.Info("Game process finished")
 	}
 
-	ln.Info("Uploading saves to the cloud")
+	ln.Info("Syncing saves with the cloud")
 	err = cfg.Sync()
 	if err != nil {
 		ln.Fatal("Failed to upload:", ln.Err(err))
