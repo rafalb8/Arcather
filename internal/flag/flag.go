@@ -12,9 +12,10 @@ import (
 
 var (
 	ConfigPath string
-	GameName   string
 	Verbose    bool
-	Launch     []string
+
+	GameName string
+	GameArgs []string
 )
 
 var (
@@ -49,7 +50,7 @@ func init() {
 	}
 
 	if split != len(os.Args) {
-		Launch = os.Args[split+1:]
+		GameArgs = os.Args[split+1:]
 	}
 }
 

@@ -2,17 +2,16 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"path/filepath"
 
 	"github.com/rafalb8/Arcather/internal/flag"
-	"github.com/rafalb8/Arcather/internal/game"
 	"github.com/rafalb8/Arcather/internal/rclone"
+	"github.com/rafalb8/Arcather/internal/runner"
 	"github.com/rafalb8/ln"
 )
 
 func main() {
+	ln.Default = ln.New(ln.WithMultiline(true))
+	
 	rclone.Init()
 	defer rclone.Close()
 
@@ -22,9 +21,16 @@ func main() {
 
 	case flag.Remotes:
 		remotes()
+	}
 
-	case len(flag.Launch) > 0:
-		launch(flag.GameName, flag.Launch)
+	r, err := runner.New(ln.Default, flag.ConfigPath, flag.Verbose)
+	if err != nil {
+		ln.Fatal("Failed to init game runner", ln.Err(err))
+	}
+
+	err = r.Launch(flag.GameName, flag.GameArgs)
+	if err != nil {
+		ln.Fatal("Session crashed", ln.Err(err))
 	}
 }
 
@@ -44,40 +50,4 @@ func remotes() {
 	for _, remote := range remotes {
 		fmt.Printf("[%s] %s\n", remote.Type.String(), remote.Name)
 	}
-}
-
-func launch(name string, args []string) {
-	if name == "" {
-		name = filepath.Base(args[0])
-	}
-
-	ln.Info("Loading config: " + name)
-	cfg, err := game.Load(flag.ConfigPath, name)
-	if err != nil {
-		ln.Fatal("Failed to load config", ln.Err(err))
-	}
-
-	// TODO: Pre-Game Sync
-
-	ln.Info("Starting game: " + name)
-	cmd := exec.Command(args[0], args[1:]...)
-	if flag.Verbose {
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-	}
-
-	err = cmd.Run()
-	if err != nil {
-		ln.Error("Game process failed:", ln.Err(err))
-	} else {
-		ln.Info("Game process finished")
-	}
-
-	ln.Info("Syncing saves with the cloud")
-	err = cfg.Sync()
-	if err != nil {
-		ln.Fatal("Failed to upload:", ln.Err(err))
-	}
-
-	ln.Info("Arcather finished")
 }

@@ -1,7 +1,6 @@
 package game
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -19,11 +18,10 @@ var environ = strings.NewReplacer(
 )
 
 type Config struct {
-	Name     string  `toml:"-"` // Name of the game
-	SavePath string  `toml:"save_path"`
-	Filters  Filters `toml:"filters"`
-
-	Remotes []rclone.Remote `toml:"remotes"`
+	Name     string          `toml:"-"`
+	SavePath string          `toml:"save_path"`
+	Filters  Filters         `toml:"filters"`
+	Remotes  []rclone.Remote `toml:"remotes"`
 }
 
 func Load(path, name string) (*Config, error) {
@@ -42,28 +40,4 @@ func Load(path, name string) (*Config, error) {
 
 	cfg.SavePath = environ.Replace(cfg.SavePath)
 	return cfg, nil
-}
-
-func (cfg *Config) Sync() error {
-	if len(cfg.Remotes) == 0 {
-		var err error
-		cfg.Remotes, err = rclone.ListRemotes()
-		if err != nil {
-			return fmt.Errorf("game.Sync: failed to load remotes: %w", err)
-		}
-	}
-
-	local := rclone.Remote{
-		Type: rclone.Local,
-		Path: cfg.SavePath,
-	}
-
-	errs := []error{}
-	for _, remote := range cfg.Remotes {
-		err := rclone.Sync(local, remote.JoinPath(cfg.Name), cfg.Filters.Rclone())
-		if err != nil {
-			errs = append(errs, err)
-		}
-	}
-	return errors.Join(errs...)
 }
