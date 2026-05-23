@@ -12,6 +12,8 @@ import (
 	"github.com/rclone/rclone/librclone/librclone"
 )
 
+// RPC docs: https://rclone.org/rc/
+
 const RemotePrefix = "arcather-"
 
 var (
@@ -84,6 +86,8 @@ func ConfigCreate(name Remote, rtype RemoteType) error {
 	return nil
 }
 
+// Sync the source to the destination, changing the destination only
+// https://rclone.org/commands/rclone_sync/
 func Sync(src, dst Remote, filter *Filter) error {
 	req := &struct {
 		Source             Remote `json:"srcFs"`
