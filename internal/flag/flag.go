@@ -37,16 +37,20 @@ func init() {
 	}
 
 	args := os.Args[1:split]
+
+	var sub string
 	if len(args) > 0 {
-		switch args[0] {
-		case "setup":
-			Setup = true
-			setupFlags(args[1:])
-		case "remotes":
-			Remotes = true
-		default:
-			mainFlags(args)
-		}
+		sub = args[0]
+	}
+
+	switch sub {
+	case "setup":
+		Setup = true
+		setupFlags(args[1:])
+	case "remotes":
+		Remotes = true
+	default:
+		mainFlags(args)
 	}
 
 	if split != len(os.Args) {
