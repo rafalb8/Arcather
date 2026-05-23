@@ -11,7 +11,7 @@ import (
 
 func main() {
 	ln.Default = ln.New(ln.WithMultiline(true))
-	
+
 	rclone.Init()
 	defer rclone.Close()
 
@@ -23,12 +23,12 @@ func main() {
 		remotes()
 	}
 
-	r, err := runner.New(ln.Default, flag.ConfigPath, flag.Verbose)
+	run, err := runner.New(ln.Default, flag.ConfigPath, flag.Verbose)
 	if err != nil {
 		ln.Fatal("Failed to init game runner", ln.Err(err))
 	}
 
-	err = r.Launch(flag.GameName, flag.GameArgs)
+	err = run.Launch(flag.GameName, flag.GameArgs)
 	if err != nil {
 		ln.Fatal("Session crashed", ln.Err(err))
 	}
