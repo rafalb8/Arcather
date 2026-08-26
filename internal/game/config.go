@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/rafalb8/Arcather/defaults"
-	"github.com/rafalb8/Arcather/internal/rclone"
+	"github.com/rafalb8/arcather/defaults"
+	"github.com/rafalb8/arcather/internal/rclone"
 	"github.com/rafalb8/ln"
 )
 

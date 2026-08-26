@@ -1,6 +1,6 @@
 package game
 
-import "github.com/rafalb8/Arcather/internal/rclone"
+import "github.com/rafalb8/arcather/internal/rclone"
 
 type Filters struct {
 	Include []string `toml:"include"`

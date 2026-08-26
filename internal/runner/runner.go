@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/rafalb8/Arcather/internal/game"
-	"github.com/rafalb8/Arcather/internal/rclone"
+	"github.com/rafalb8/arcather/internal/game"
+	"github.com/rafalb8/arcather/internal/rclone"
 	"github.com/rafalb8/ln"
 )
 

@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/rafalb8/Arcather/internal/flag"
-	"github.com/rafalb8/Arcather/internal/rclone"
-	"github.com/rafalb8/Arcather/internal/runner"
+	"github.com/rafalb8/arcather/internal/flag"
+	"github.com/rafalb8/arcather/internal/rclone"
+	"github.com/rafalb8/arcather/internal/runner"
 	"github.com/rafalb8/ln"
 )
 
